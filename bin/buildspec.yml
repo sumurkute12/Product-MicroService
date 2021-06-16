@@ -1,0 +1,31 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      java: corretto11
+      docker: 18
+  pre_build:
+    commands:
+      - echo "Pre_build"
+      - echo "Logging in to Amazon ECR"
+      - $(aws ecr get-login  --no-include-email --region us-east-1)
+  build:
+    commands:
+      - echo "Build"
+      - echo "Entered build phase"
+      - echo "Building Java application"
+      - cd  RPM-Product-Microservice
+      - mvn -DskipTests clean package
+      - docker build -t rpm-api-product-repo .
+      - docker tag rpm-api-product-repo:latest 234825976347.dkr.ecr.us-east-2.amazonaws.com/rpm-api-product-repo:latest
+  post_build:
+    commands:
+      - echo "Post_build"
+      - docker push 234825976347.dkr.ecr.us-east-2.amazonaws.com/rpm-api-product-repo:latest
+      - printf '[{"name":"rpm-api-product-repo-container","imageUri":"%s"}]' 234825976347.dkr.ecr.us-east-2.amazonaws.com/rpm-api-product-repo:latest > taskdefinition.json
+      - cat taskdefinition.json
+
+artifacts:
+  files:
+      - RPM-Product-Microservice/taskdefinition.json
