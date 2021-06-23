@@ -24,3 +24,15 @@ spring:
   
 server:
   port: 8001
+
+eureka:
+  instance:
+    hostname: ${vcap.application.uris[0]:localhost}
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 20
+  client:
+    service-url:
+      defaultZone: http://3.142.148.8:8761/eureka
+                   
+  #
